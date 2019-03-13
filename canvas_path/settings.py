@@ -55,7 +55,7 @@ ROOT_URLCONF = 'canvas_path.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "/courses/templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
