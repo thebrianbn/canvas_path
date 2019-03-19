@@ -1,19 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
-from compositefk.fields import CompositeForeignKey
 
 
-class Student(User):
+class Student(models.Model):
     """ Students records in CanvasPath. """
 
-    #email = models.CharField(max_length=50, primary_key=True)
-    #password = models.CharField(max_length=50)
     name = models.CharField(max_length=25)
     age = models.PositiveSmallIntegerField()
     gender = models.CharField(max_length=6)
     major = models.CharField(max_length=25)
     street = models.CharField(max_length=25)
     zipcode = models.ForeignKey("courses.Zipcode", on_delete=models.DO_NOTHING)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
 class Zipcode(models.Model):
@@ -24,17 +22,16 @@ class Zipcode(models.Model):
     state = models.CharField(max_length=2)
 
 
-class Professor(User):
+class Professor(models.Model):
     """ Professor records in CanvasPath. """
 
-    #email = models.CharField(max_length=50, primary_key=True)
-    #password = models.CharField(max_length=50)
     name = models.CharField(max_length=25)
     age = models.PositiveSmallIntegerField()
     gender = models.CharField(max_length=6)
     office_address = models.CharField(max_length=50)
     deptment = models.ForeignKey("courses.Department", on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=25)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
 class Department(models.Model):
@@ -52,167 +49,138 @@ class Course(models.Model):
     course_description = models.CharField(max_length=250)
 
 
-class Sections(models.Model):
+class Section(models.Model):
     """ Sections for specific courses. """
 
-    course_id = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
-    sec_no = models.PositiveSmallIntegerField()
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.PositiveSmallIntegerField()
     section_type = models.CharField(max_length=8)
     limit = models.PositiveSmallIntegerField()
 
     class Meta:
-        unique_together = (("course_id", "sec_no"),)
+        unique_together = (("course", "section"),)
 
 
 class Enrolls(models.Model):
     """ Course enrollment for students. """
 
-    student_email = models.ForeignKey("courses.Student", on_delete=models.CASCADE,
-                                      to_field="email", db_column="email")
-    course_id = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
+    student = models.ForeignKey("courses.Student", on_delete=models.CASCADE)
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (("student_email", "course_id", "sec_no"),)
+        unique_together = (("student", "course", "section"),)
 
 
-class Prof_teams(models.Model):
+class ProfTeams(models.Model):
     """ Teams of professors for teaching courses. """
 
     pass
 
 
-class Prof_team_members(models.Model):
+class ProfTeamMember(models.Model):
     """ Professors and their corresponding teams. """
 
-    prof_email = models.ForeignKey("courses.Professor", on_delete=models.CASCADE,
-                                   to_field="email", db_column="email")
-    team_id = models.ForeignKey("courses.Prof_teams", on_delete=models.DO_NOTHING)
+    professor = models.ForeignKey("courses.Professor", on_delete=models.CASCADE)
+    team = models.ForeignKey("courses.ProfTeams", on_delete=models.DO_NOTHING)
 
     class Meta:
-        unique_together = (("prof_email", "team_id"),)
+        unique_together = (("professor", "team"),)
 
 
 class Homework(models.Model):
     """ Homework assigneents to be assigned to students from professors. """
 
-    course_id = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE,)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE,)
     hw_no = models.PositiveSmallIntegerField()
     hw_details = models.CharField(max_length=250)
 
     class Meta:
-        unique_together = (("course_id", "sec_no", "hw_no"),)
+        unique_together = (("course", "section", "hw_no"),)
 
 
-class Homework_grades(models.Model):
+class HomeworkGrade(models.Model):
     """ Finalized grades for student homework assignments. """
 
-    student_email = models.ForeignKey("courses.Student", on_delete=models.CASCADE,
-                                      to_field="email", db_column="email")
-    course_id = models.ForeignKey("courses.Homework", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Homework", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
-    hw_no = models.ForeignKey("courses.Homework", on_delete=models.CASCADE,
-                              to_field="hw_no", db_column="hw_no")
+    student = models.ForeignKey("courses.Student", on_delete=models.CASCADE)
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
+    homework = models.ForeignKey("courses.Homework", on_delete=models.CASCADE)
     grade = models.CharField(max_length=1)
 
     class Meta:
-        unique_together = (("student_email", "course_id", "sec_no", "hw_no"),)
+        unique_together = (("student", "course", "section", "homework"),)
 
 
-class Exams(models.Model):
+class Exam(models.Model):
     """ Exams to be assigned to students from professors. """
 
-    course_id = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
     exam_no = models.PositiveSmallIntegerField()
     exam_details = models.CharField(max_length=250)
 
     class Meta:
-        unique_together = (("course_id", "sec_no", "exam_no"),)
+        unique_together = (("course", "section", "exam_no"),)
 
 
-class Exam_grades(models.Model):
+class ExamGrade(models.Model):
     """ Finalized grades for student exams. """
 
-    student_email = models.ForeignKey("courses.Student", on_delete=models.CASCADE,
-                                      to_field="email", db_column="email")
-    course_id = models.ForeignKey("courses.Exams", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Exams", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
-    exam_no = models.ForeignKey("courses.Exams", on_delete=models.CASCADE,
-                                to_field="exam_no", db_column="exam_no")
+    student = models.ForeignKey("courses.Student", on_delete=models.CASCADE)
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
+    exam = models.ForeignKey("courses.Exam", on_delete=models.CASCADE)
     grade = models.CharField(max_length=1)
 
     class Meta:
-        unique_together = (("student_email", "course_id", "sec_no", "exam_no"),)
+        unique_together = (("student", "course", "section", "exam"),)
 
 
-class Capstone_section(models.Model):
+class CapstoneSection(models.Model):
     """ Special course sections for senior capstone projects. """
 
-    course_id = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Sections", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
     project_no = models.PositiveSmallIntegerField()
-    sponsor_id = models.ForeignKey("courses.Professor", on_delete=models.DO_NOTHING,
-                                   to_field="email", db_column="email")
+    sponsor = models.ForeignKey("courses.Professor", on_delete=models.DO_NOTHING)
 
     class Meta:
-        unique_together = (("course_id", "sec_no", "project_no"),)
+        unique_together = (("course", "section", "project_no"),)
 
 
-class Capstone_team(models.Model):
+class CapstoneTeam(models.Model):
     """ Capstone project teams. """
 
-    course_id = models.ForeignKey("courses.Capstone_section", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Capstone_section", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
     team_id = models.PositiveSmallIntegerField()
-    project_no = models.ForeignKey("courses.Capstone_section", on_delete=models.DO_NOTHING,
-                                   to_field="project_no", db_column="project_no")
+    project = models.ForeignKey("courses.CapstoneSection", on_delete=models.DO_NOTHING)
 
     class Meta:
-        unique_together = (("course_id", "sec_no", "team_id"),)
+        unique_together = (("course", "section", "team_id"),)
 
 
-class Capstone_team_members(models.Model):
+class CapstoneTeamMember(models.Model):
     """ Individual team members for capstone project teams. """
 
-    student_email = models.ForeignKey("courses.Student", on_delete=models.CASCADE,
-                                      to_field="email", db_column="email")
-    team_id = models.ForeignKey("courses.Capstone_team", on_delete=models.DO_NOTHING,
-                                to_field="team_id", db_column="team_id")
-    course_id = models.ForeignKey("courses.Capstone_team", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Capstone_team", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
+    student = models.ForeignKey("courses.Student", on_delete=models.CASCADE)
+    team = models.ForeignKey("courses.CapstoneTeam", on_delete=models.DO_NOTHING)
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (("student_email", "team_id", "course_id", "sec_no"),)
+        unique_together = (("student", "team", "course", "section"),)
 
 
 class Capstone_grades(models.Model):
     """ Finalized grades for student capstone projects. """
 
-    team_id = models.ForeignKey("courses.Capstone_team", on_delete=models.DO_NOTHING,
-                                to_field="team_id", db_column="team_id")
-    course_id = models.ForeignKey("courses.Capstone_team", on_delete=models.CASCADE,
-                                  to_field="course_id", db_column="course_id")
-    sec_no = models.ForeignKey("courses.Capstone_team", on_delete=models.CASCADE,
-                               to_field="sec_no", db_column="sec_no")
+    team = models.ForeignKey("courses.CapstoneTeam", on_delete=models.DO_NOTHING)
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
+    section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
     grade = models.CharField(max_length=1)
 
     class Meta:
-        unique_together = (("team_id", "course_id", "sec_no"),)
+        unique_together = (("team", "course", "section"),)
