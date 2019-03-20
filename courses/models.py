@@ -11,6 +11,7 @@ class Student(models.Model):
     major = models.CharField(max_length=25)
     street = models.CharField(max_length=25)
     zipcode = models.ForeignKey("courses.Zipcode", on_delete=models.DO_NOTHING)
+    phone = models.CharField(max_length=10)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
@@ -29,7 +30,7 @@ class Professor(models.Model):
     age = models.PositiveSmallIntegerField()
     gender = models.CharField(max_length=6)
     office_address = models.CharField(max_length=50)
-    deptment = models.ForeignKey("courses.Department", on_delete=models.DO_NOTHING)
+    department = models.ForeignKey("courses.Department", on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=25)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
@@ -38,8 +39,9 @@ class Department(models.Model):
     """ Departments that students are enrolled in and professors
     teach in. """
 
+    dept_id = models.CharField(max_length=5)
     dept_name = models.CharField(max_length=25)
-    dept_head = models.ForeignKey("courses.Professor", on_delete=models.DO_NOTHING)
+    dept_head = models.ForeignKey("courses.Professor", on_delete=models.DO_NOTHING, related_name="+", null=True)
 
 
 class Course(models.Model):
