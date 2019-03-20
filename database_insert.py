@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import os
 
@@ -15,6 +16,7 @@ def populate_users(user_data):
         new_user.username = user_data.loc[i, :]["Email"]
         new_user.email = user_data.loc[i, :]["Email"]
         new_user.password = user_data.loc[i, :]["Password"]
+        new_user.is_student = user_data.loc[i,:]["is_student"]
         new_user.save()
 
 
@@ -222,13 +224,82 @@ def populate_homework_grades(homework_grade_data):
         new_homework_grade3.save()
 
 
+def populate_exams(exam_data):
+
+    for i in range(len(exam_data)):
+
+        # corresponding course instance
+        course = Course.objects.get(course_name=exam_data.loc[i, :]["Course"])
+        # corresponding section instance
+        section = Section.objects.get(course=course, section=exam_data.loc[i, :]["Section"])
+
+        new_exam = Exam()
+        new_exam.course = course
+        new_exam.section = section
+        new_exam.exam_no = exam_data.loc[i, :]["Exam_No"]
+        new_exam.exam_details = exam_data.loc[i, :]["Exam_Details"]
+        new_exam.save()
+
+
+def populate_exam_grades(exam_grade_data):
+
+    for i in range(len(exam_grade_data)):
+
+        # corresponding student
+        student = Student.objects.get(name=exam_grade_data.loc[i, :]["Full Name"])
+
+        if not np.isnan(exam_grade_data.loc[i, :]["Course 1 EXAM_No"]):
+            course1 = Course.objects.get(course_name=exam_grade_data.loc[i, :]["Courses 1"])
+            section1 = Section.objects.get(course=course1, section=exam_grade_data.loc[i, :]["Course 1 Section"])
+            exam1 = Exam.objects.get(course=course1, section=section1,
+                                     exam_no=exam_grade_data.loc[i, :]["Course 1 EXAM_No"])
+
+            new_exam_grade1 = ExamGrade()
+            new_exam_grade1.student = student
+            new_exam_grade1.course = course1
+            new_exam_grade1.section = section1
+            new_exam_grade1.exam = exam1
+            new_exam_grade1.grade = exam_grade_data.loc[i, :]["Course 1 Exam_Grade"]
+            new_exam_grade1.save()
+
+        if not np.isnan(exam_grade_data.loc[i, :]["Course 2 EXAM_No"]):
+            course2 = Course.objects.get(course_name=exam_grade_data.loc[i, :]["Courses 2"])
+            section2 = Section.objects.get(course=course2, section=exam_grade_data.loc[i, :]["Course 2 Section"])
+            exam2 = Exam.objects.get(course=course2, section=section2,
+                                     exam_no=exam_grade_data.loc[i, :]["Course 2 EXAM_No"])
+
+            new_exam_grade2 = ExamGrade()
+            new_exam_grade2.student = student
+            new_exam_grade2.course = course2
+            new_exam_grade2.section = section2
+            new_exam_grade2.exam = exam2
+            new_exam_grade2.grade = exam_grade_data.loc[i, :]["Course 2 Exam_Grade"]
+            new_exam_grade2.save()
+
+        if not np.isnan(exam_grade_data.loc[i, :]["Course 3 EXAM_No"]):
+            course3 = Course.objects.get(course_name=exam_grade_data.loc[i, :]["Courses 3"])
+            section3 = Section.objects.get(course=course3, section=exam_grade_data.loc[i, :]["Course 3 Section"])
+            exam3 = Exam.objects.get(course=course3, section=section3,
+                                     exam_no=exam_grade_data.loc[i, :]["Course 3 EXAM_No"])
+
+            new_exam_grade3 = ExamGrade()
+            new_exam_grade3.student = student
+            new_exam_grade3.course = course3
+            new_exam_grade3.section = section3
+            new_exam_grade3.exam = exam3
+            new_exam_grade3.grade = exam_grade_data.loc[i, :]["Course 3 Exam_Grade"]
+            new_exam_grade3.save()
+
+
 if __name__ == "__main__":
 
     students = pd.read_csv("Students.csv")
     professors = pd.read_csv("Professors.csv")
 
     user_data_students = students.loc[:, ["Email", "Password"]]
+    user_data_students["is_student"] = True
     user_data_professors = professors.loc[:, ["Email", "Password"]]
+    user_data_professors["is_student"] = False
     user_data = pd.concat([user_data_students, user_data_professors], axis=0).drop_duplicates().reset_index()
 
     zipcode_data = students.loc[:, ["Zip", "City", "State"]].drop_duplicates().reset_index()
@@ -274,6 +345,22 @@ if __name__ == "__main__":
                                            "Course 2 HW_Grade", "Courses 3", "Course 3 Section", "Course 3 HW_No",
                                            "Course 3 HW_Grade"]]
 
+    exam_data1 = students.loc[:, ["Courses 1", "Course 1 Section", "Course 1 EXAM_No", "Course 1 Exam_Details"]][
+        students.loc[:, ["Course 1 EXAM_No"]].notnull().values]
+    exam_data1.columns = ["Course", "Section", "Exam_No", "Exam_Details"]
+    exam_data2 = students.loc[:, ["Courses 2", "Course 2 Section", "Course 2 EXAM_No", "Course 2 Exam_Details"]][
+        students.loc[:, ["Course 2 EXAM_No"]].notnull().values]
+    exam_data2.columns = ["Course", "Section", "Exam_No", "Exam_Details"]
+    exam_data3 = students.loc[:, ["Courses 3", "Course 3 Section", "Course 3 EXAM_No", "Course 3 Exam_Details"]][
+        students.loc[:, ["Course 3 EXAM_No"]].notnull().values]
+    exam_data3.columns = ["Course", "Section", "Exam_No", "Exam_Details"]
+    exam_data = pd.concat([exam_data1, exam_data2, exam_data3], axis=0).drop_duplicates().reset_index()
+
+    exam_grade_data = students.loc[:, ["Full Name", "Courses 1", "Course 1 Section", "Course 1 EXAM_No",
+                                           "Course 1 Exam_Grade", "Courses 2", "Course 2 Section", "Course 2 EXAM_No",
+                                           "Course 2 Exam_Grade", "Courses 3", "Course 3 Section", "Course 3 EXAM_No",
+                                           "Course 3 Exam_Grade"]]
+
     populate_users(user_data)
     popular_zipcodes(zipcode_data)
     populate_students(student_data)
@@ -286,4 +373,5 @@ if __name__ == "__main__":
     populate_prof_team_members(prof_team_member_data)
     populate_homeworks(homework_data)
     populate_homework_grades(homework_grade_data)
-
+    populate_exams(exam_data)
+    populate_exam_grades(exam_grade_data)

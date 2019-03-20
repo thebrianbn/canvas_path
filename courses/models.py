@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+User.add_to_class("is_student", models.BooleanField(default=False))
+
 
 class Student(models.Model):
     """ Students records in CanvasPath. """
