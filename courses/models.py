@@ -77,7 +77,7 @@ class Enrolls(models.Model):
 class ProfTeams(models.Model):
     """ Teams of professors for teaching courses. """
 
-    pass
+    team_id = models.PositiveSmallIntegerField()
 
 
 class ProfTeamMember(models.Model):

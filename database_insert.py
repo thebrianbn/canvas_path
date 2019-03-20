@@ -112,6 +112,115 @@ def populate_professors(professor_data):
             department.save()
 
 
+def populate_enrolls(enrolls_data):
+
+    for i in range(len(enrolls_data)):
+
+        # corresponding student
+        student = Student.objects.get(name=enrolls_data.loc[i, :]["Full Name"])
+        # corresponding courses
+        course1 = Course.objects.get(course_name=enrolls_data.loc[i, :]["Courses 1"])
+        course2 = Course.objects.get(course_name=enrolls_data.loc[i, :]["Courses 2"])
+        course3 = Course.objects.get(course_name=enrolls_data.loc[i, :]["Courses 3"])
+        # corresponding sections
+        section1 = Section.objects.get(course=course1, section=enrolls_data.loc[i, :]["Course 1 Section"])
+        section2 = Section.objects.get(course=course2, section=enrolls_data.loc[i, :]["Course 2 Section"])
+        section3 = Section.objects.get(course=course3, section=enrolls_data.loc[i, :]["Course 3 Section"])
+
+        new_enrolls1 = Enrolls(student=student, course=course1, section=section1)
+        new_enrolls2 = Enrolls(student=student, course=course2, section=section2)
+        new_enrolls3 = Enrolls(student=student, course=course3, section=section3)
+
+        new_enrolls1.save()
+        new_enrolls2.save()
+        new_enrolls3.save()
+
+
+def populate_prof_teams(prof_team_data):
+
+    for i in range(len(prof_team_data)):
+
+        new_prof_team = ProfTeams(team_id=prof_team_data.loc[i, :]["Team ID"])
+        new_prof_team.save()
+
+
+def populate_prof_team_members(prof_team_member_data):
+
+    for i in range(len(prof_team_data)):
+
+        # corresponding professor instance
+        professor = Professor.objects.get(name=prof_team_member_data.loc[i, :]["Name"])
+        # corresponding team instance
+        team = ProfTeams.objects.get(team_id=prof_team_member_data.loc[i, :]["Team ID"])
+
+        new_prof_team_member = ProfTeamMember(professor=professor, team=team)
+        new_prof_team_member.save()
+
+
+def populate_homeworks(homework_data):
+
+    for i in range(len(homework_data)):
+
+        # corresponding course instance
+        course = Course.objects.get(course_name=homework_data.loc[i, :]["Course"])
+        # corresponding section instance
+        section = Section.objects.get(course=course, section=homework_data.loc[i, :]["Section"])
+
+        new_homework = Homework()
+        new_homework.course = course
+        new_homework.section = section
+        new_homework.hw_no = homework_data.loc[i, :]["HW_No"]
+        new_homework.hw_details = homework_data.loc[i, :]["HW_Details"]
+        new_homework.save()
+
+
+def populate_homework_grades(homework_grade_data):
+
+    for i in range(len(homework_grade_data)):
+
+        # corresponding student
+        student = Student.objects.get(name=homework_grade_data.loc[i, :]["Full Name"])
+        # corresponding courses
+        course1 = Course.objects.get(course_name=homework_grade_data.loc[i, :]["Courses 1"])
+        course2 = Course.objects.get(course_name=homework_grade_data.loc[i, :]["Courses 2"])
+        course3 = Course.objects.get(course_name=homework_grade_data.loc[i, :]["Courses 3"])
+        # corresponding sections
+        section1 = Section.objects.get(course=course1, section=homework_grade_data.loc[i, :]["Course 1 Section"])
+        section2 = Section.objects.get(course=course2, section=homework_grade_data.loc[i, :]["Course 2 Section"])
+        section3 = Section.objects.get(course=course3, section=homework_grade_data.loc[i, :]["Course 3 Section"])
+        # corresponding homeworks
+        homework1 = Homework.objects.get(course=course1, section=section1,
+                                         hw_no=homework_grade_data.loc[i, :]["Course 1 HW_No"])
+        homework2 = Homework.objects.get(course=course2, section=section2,
+                                         hw_no=homework_grade_data.loc[i, :]["Course 2 HW_No"])
+        homework3 = Homework.objects.get(course=course3, section=section3,
+                                         hw_no=homework_grade_data.loc[i, :]["Course 3 HW_No"])
+
+        new_homework_grade1 = HomeworkGrade()
+        new_homework_grade1.student = student
+        new_homework_grade1.course = course1
+        new_homework_grade1.section = section1
+        new_homework_grade1.homework = homework1
+        new_homework_grade1.grade = homework_grade_data.loc[i, :]["Course 1 HW_Grade"]
+
+        new_homework_grade2 = HomeworkGrade()
+        new_homework_grade2.student = student
+        new_homework_grade2.course = course2
+        new_homework_grade2.section = section2
+        new_homework_grade2.homework = homework2
+        new_homework_grade2.grade = homework_grade_data.loc[i, :]["Course 2 HW_Grade"]
+
+        new_homework_grade3 = HomeworkGrade()
+        new_homework_grade3.student = student
+        new_homework_grade3.course = course3
+        new_homework_grade3.section = section3
+        new_homework_grade3.homework = homework3
+        new_homework_grade3.grade = homework_grade_data.loc[i, :]["Course 3 HW_Grade"]
+
+        new_homework_grade1.save()
+        new_homework_grade2.save()
+        new_homework_grade3.save()
+
 
 if __name__ == "__main__":
 
@@ -124,7 +233,6 @@ if __name__ == "__main__":
 
     zipcode_data = students.loc[:, ["Zip", "City", "State"]].drop_duplicates().reset_index()
     student_data = students.loc[:, ["Full Name", "Age", "Gender", "Street", "Major", "Phone", "Email", "Zip"]]
-
 
     course1_data = students.loc[:, ["Courses 1", "Course 1 Details"]]
     course1_data.columns = ["Course", "Details"]
@@ -146,6 +254,26 @@ if __name__ == "__main__":
 
     professor_data = professors.loc[:, ["Name", "Age", "Gender", "Office", "Title", "Department", "Email"]]
 
+    enrolls_data = students.loc[:, ["Full Name", "Courses 1", "Course 1 Section", "Courses 2", "Course 2 Section",
+                                    "Courses 3", "Course 3 Section"]]
+
+    prof_team_data = professors.loc[:, ["Team ID"]]
+
+    prof_team_member_data = professors.loc[:, ["Name", "Team ID"]]
+
+    homework_data1 = students.loc[:, ["Courses 1", "Course 1 Section", "Course 1 HW_No", "Course 1 HW_Details"]]
+    homework_data1.columns = ["Course", "Section", "HW_No", "HW_Details"]
+    homework_data2 = students.loc[:, ["Courses 2", "Course 2 Section", "Course 2 HW_No", "Course 2 HW_Details"]]
+    homework_data2.columns = ["Course", "Section", "HW_No", "HW_Details"]
+    homework_data3 = students.loc[:, ["Courses 3", "Course 3 Section", "Course 3 HW_No", "Course 3 HW_Details"]]
+    homework_data3.columns = ["Course", "Section", "HW_No", "HW_Details"]
+    homework_data = pd.concat([homework_data1, homework_data2, homework_data3], axis=0).drop_duplicates().reset_index()
+
+    homework_grade_data = students.loc[:, ["Full Name", "Courses 1", "Course 1 Section", "Course 1 HW_No",
+                                           "Course 1 HW_Grade", "Courses 2", "Course 2 Section", "Course 2 HW_No",
+                                           "Course 2 HW_Grade", "Courses 3", "Course 3 Section", "Course 3 HW_No",
+                                           "Course 3 HW_Grade"]]
+
     populate_users(user_data)
     popular_zipcodes(zipcode_data)
     populate_students(student_data)
@@ -153,3 +281,9 @@ if __name__ == "__main__":
     populate_departments(department_data)
     populate_professors(professor_data)
     populate_sections(section_data)
+    populate_enrolls(enrolls_data)
+    populate_prof_teams(prof_team_data)
+    populate_prof_team_members(prof_team_member_data)
+    populate_homeworks(homework_data)
+    populate_homework_grades(homework_grade_data)
+
