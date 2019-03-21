@@ -12,12 +12,10 @@ def populate_users(user_data):
 
     for i in range(len(user_data)):
 
-        new_user = User()
-        new_user.username = user_data.loc[i, :]["Email"]
-        new_user.email = user_data.loc[i, :]["Email"]
-        new_user.password = user_data.loc[i, :]["Password"]
-        new_user.is_student = user_data.loc[i,:]["is_student"]
-        new_user.save()
+        User.objects.create_user(username=user_data.loc[i, :]["Email"],
+                                 email=user_data.loc[i, :]["Email"],
+                                 password = user_data.loc[i, :]["Password"],
+                                 is_student=user_data.loc[i,:]["is_student"])
 
 
 def popular_zipcodes(zipcode_data):
@@ -362,6 +360,7 @@ if __name__ == "__main__":
                                            "Course 3 Exam_Grade"]]
 
     populate_users(user_data)
+    """
     popular_zipcodes(zipcode_data)
     populate_students(student_data)
     populate_courses(course_data)
@@ -375,3 +374,4 @@ if __name__ == "__main__":
     populate_homework_grades(homework_grade_data)
     populate_exams(exam_data)
     populate_exam_grades(exam_grade_data)
+    """
