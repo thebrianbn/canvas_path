@@ -34,7 +34,7 @@ def populate_students(student_data):
     for i in range(len(student_data)):
 
         # corresponding user instance
-        user = User.objects.get(email=students.loc[i, :]["Email"])
+        user = User.objects.get(email=student_data.loc[i, :]["Email"])
         # corresponding zipcode instance
         zipcode = Zipcode.objects.get(zipcode=student_data.loc[i, :]["Zip"])
 
@@ -95,7 +95,7 @@ def populate_professors(professor_data):
         # corresponding department
         department = Department.objects.get(dept_id=professor_data.loc[i, :]["Department"])
         # corresponding user instance
-        user = User.objects.get(email=students.loc[i, :]["Email"])
+        user = User.objects.get(email=professor_data.loc[i, :]["Email"])
 
         new_professor = Professor()
         new_professor.name = professor_data.loc[i, :]["Name"]
@@ -360,7 +360,6 @@ if __name__ == "__main__":
                                            "Course 3 Exam_Grade"]]
 
     populate_users(user_data)
-    """
     popular_zipcodes(zipcode_data)
     populate_students(student_data)
     populate_courses(course_data)
@@ -374,4 +373,3 @@ if __name__ == "__main__":
     populate_homework_grades(homework_grade_data)
     populate_exams(exam_data)
     populate_exam_grades(exam_grade_data)
-    """
