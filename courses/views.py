@@ -8,12 +8,14 @@ from .models import Student, Professor, Zipcode
 
 
 class Home(View):
+    """Homepage view."""
 
     def get(self, request):
         return render(request, "home.html")
 
 
-class PasswordChange(View):
+class Profile(View):
+    """ Profile view for users to see their basic information and change their password if needed. """
 
     def get(self, request):
 
@@ -26,7 +28,7 @@ class PasswordChange(View):
 
         form = PasswordChangeForm(request.user)
 
-        return render(request, "change_password.html", {"form": form, "profile": profile, "is_student": is_student})
+        return render(request, "profile.html", {"form": form, "profile": profile, "is_student": is_student})
 
     def post(self, request):
 
