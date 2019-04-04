@@ -289,6 +289,25 @@ def populate_exam_grades(exam_grade_data):
             new_exam_grade3.save()
 
 
+def populate_section_teams(teaching_data):
+
+    for i in range(len(teaching_data)):
+
+        num_courses = Course.objects.filter(course_name=teaching_data.loc[i, :]["Teaching"]).count()
+
+        if num_courses == 0:
+            continue
+
+        course = Course.objects.get(course_name=teaching_data.loc[i, :]["Teaching"])
+        sections = Section.objects.filter(course=course)
+        team_id = ProfTeams.objects.get(team_id=teaching_data.loc[i, :]["Team ID"])
+
+        for section in sections:
+
+            section.prof_team = team_id
+            section.save()
+
+
 if __name__ == "__main__":
 
     students = pd.read_csv("Students.csv")
@@ -318,6 +337,8 @@ if __name__ == "__main__":
     section3_data = students.loc[:, ["Courses 3", "Course 3 Section", "Course 3 Type", "Course 3 Section Limit"]]
     section3_data.columns = ["Course", "Section", "Type", "Limit"]
     section_data = pd.concat([section1_data, section2_data, section3_data], axis=0).drop_duplicates().reset_index()
+
+    teaching_data = professors.loc[:, ["Team ID", "Teaching"]]
 
     department_data = professors.loc[:, ["Department", "Department Name"]].drop_duplicates().reset_index()
 
@@ -373,3 +394,4 @@ if __name__ == "__main__":
     populate_homework_grades(homework_grade_data)
     populate_exams(exam_data)
     populate_exam_grades(exam_grade_data)
+    populate_section_teams(teaching_data)

@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from .models import Student, Professor, Zipcode
+from .models import Student, Professor, Zipcode, Enrolls
 
 
 class Home(View):
@@ -41,3 +41,21 @@ class Profile(View):
             return redirect("home")
         else:
             messages.error(request, "Please correct the error.")
+
+
+class Dashboard(View):
+    """ Courses dashboard for students to see courses they are enrolled in, and for professors to see courses they
+    teach. """
+
+    def get(self, request):
+
+        if request.user.is_student:
+
+            profile = Student.objects.get(user=request.user)
+
+            enrolled = Enrolls.objects.filter(student=profile)
+
+
+    def post(self, request):
+
+        pass

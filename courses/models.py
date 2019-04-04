@@ -60,6 +60,7 @@ class Section(models.Model):
     section = models.PositiveSmallIntegerField()
     section_type = models.CharField(max_length=8)
     limit = models.PositiveSmallIntegerField()
+    prof_team = models.ForeignKey("courses.ProfTeams", on_delete=models.DO_NOTHING, null=True)
 
     class Meta:
         unique_together = (("course", "section"),)
