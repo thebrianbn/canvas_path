@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    {% for section in sections %}
+
+        <div class="coursecard">
+          <div class="bg-img"></div>
+          <div class="content", >
+            <h4>{{ section.course.course_name }}</h4>
+              <p>{{ section.course.course_description }}</p> <a href="{% url 'course-detail' section.pk %}"> <button> Course Details</button> </a></div>
+        </div>
+
+    {% endfor %}
+
+{% endblock content %}

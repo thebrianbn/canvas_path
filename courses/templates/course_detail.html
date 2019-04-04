@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1> {{ course.course_name }}</h1>
+
+    <h6> Section Number: {{ section.section }}</h6>
+    <h6> Section Type: {{ section.section_type }} </h6>
+    <h6> Section Limit: {{ section.limit }}</h6>
+
+    <p> Course Description: {{ course.course_description }}</p>
+
+    {% for professor in professors %}
+        <h5>{{ professor.name }}</h5>
+    {% endfor %}
+
+{% endblock content %}
