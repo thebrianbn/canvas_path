@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from .models import Student, Professor, Zipcode, Enrolls
+from .models import Student, Professor, Zipcode, Enrolls, Section, ProfTeamMember
 
 
 class Home(View):
@@ -51,11 +51,28 @@ class Dashboard(View):
 
         if request.user.is_student:
 
+            is_student = True
             profile = Student.objects.get(user=request.user)
-
             enrolled = Enrolls.objects.filter(student=profile)
+            sections = [enroll.section for enroll in enrolled]
+
+            return render(request, "dashboard.html", {"sections": sections, "is_student": is_student})
 
 
     def post(self, request):
 
         pass
+
+
+class CourseDetail(View):
+    """ Course detail view to show course and professor information."""
+
+    def get(self, request, pk):
+
+        section = Section.objects.get(id=pk)
+        course = section.course
+        prof_team = section.prof_team
+        team_members = ProfTeamMember.objects.filter(team=prof_team)
+        professors = [team_member.professor for team_member in team_members]
+
+        return render(request, "course_detail.html", {"section": section, "course": course, "professors": professors})

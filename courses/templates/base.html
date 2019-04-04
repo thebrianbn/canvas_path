@@ -8,6 +8,7 @@
     <link href="{% static 'css/sidebar.css' %}" rel="stylesheet">
     <link href="{% static 'css/navbar.css' %}" rel="stylesheet", type="text/css">
     <link href="{% static 'css/profile.css' %}" rel="stylesheet", type="text/css">
+    <link href="{% static 'css/coursecard.css' %}" rel="stylesheet", type="text/css">
   </head>
 <body>
 
@@ -15,7 +16,7 @@
     <div class="bg-light border-right" id="sidebar-wrapper">
       <div class="sidebar-heading">CanvasPath </div>
       <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action bg-light">Dashboard</a>
+          <a href="{% url 'dashboard' %}" class="list-group-item list-group-item-action bg-light">Dashboard</a>
           {% if user.is_student %}
               <a href="#" class="list-group-item list-group-item-action bg-light">Enrollment</a>
           {% else %}
