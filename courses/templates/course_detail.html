@@ -4,14 +4,56 @@
 
     <h1> {{ course.course_name }}</h1>
 
-    <h6> Section Number: {{ section.section }}</h6>
-    <h6> Section Type: {{ section.section_type }} </h6>
-    <h6> Section Limit: {{ section.limit }}</h6>
+    <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+        <h3> <b>Course Information</b> </h3>
+        <h6> Section Number: {{ section.section }}</h6>
+        <h6> Section Type: {{ section.section_type }} </h6>
+        <h6> Section Limit: {{ section.limit }}</h6>
+        <h6> Course Description: {{ course.course_description }}</h6>
+    </div>
+    <br>
 
-    <p> Course Description: {{ course.course_description }}</p>
+    {% if is_student %}
 
-    {% for professor in professors %}
-        <h5>{{ professor.name }}</h5>
-    {% endfor %}
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+            <h3> <b>Professor Information</b></h3>
+            {% for professor in professors %}
+                <h6>Professor: {{ professor.name }}</h6>
+                <h6>Email: {{ professor.user.email }}</h6>
+                <h6>Office: {{ professor.office_address }}</h6>
+            {% endfor %}
+        </div>
+        <br>
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+            <table style="width: 100%";>
+                <tr style="background-color: #093162;">
+                    <th style="color: white";>Assignment Type</th>
+                    <th style="color: white";>Number</th>
+                    <th style="color: white";>Details</th>
+                    <th style="color: white";>Grade</th>
+                </tr>
+            <h3> <b>Course Grades</b></h3>
+            {% for hw_grade in hw_grades %}
+                <tr>
+                    <th>Homework</th>
+                    <th>{{ hw_grade.homework.hw_no }}</th>
+                    <th>{{ hw_grade.homework.hw_details }}</th>
+                    <th>{{ hw_grade.grade }}</th>
+                </tr>
+            {% endfor %}
+            {% for exam_grade in exam_grades %}
+                <tr>
+                    <th>Exam</th>
+                    <th>{{ exam_grade.exam.exam_no }}</th>
+                    <th>{{ exam_grade.exam.exam_details }}</th>
+                    <th>{{ exam_grade.grade }}</th>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    {% else %}
+
+
+    {% endif %}
 
 {% endblock content %}
