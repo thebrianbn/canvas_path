@@ -6,7 +6,7 @@
     {% for section in sections %}
 
         <div class="coursecard">
-          <div class="bg-img"></div>
+            <div class="bg-img"> <center><img src="{% static 'images/eecs.png' %}" height="250"></center></div>
           <div class="content", >
             <h4>{{ section.course.course_name }}</h4>
               <p>{{ section.course.course_description }}</p> <a href="{% url 'course-detail' section.pk %}"> <button> Course Details</button> </a></div>

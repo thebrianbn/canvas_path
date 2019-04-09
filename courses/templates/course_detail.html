@@ -6,10 +6,10 @@
 
     <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
         <h3> <b>Course Information</b> </h3>
-        <h6> Section Number: {{ section.section }}</h6>
-        <h6> Section Type: {{ section.section_type }} </h6>
-        <h6> Section Limit: {{ section.limit }}</h6>
-        <h6> Course Description: {{ course.course_description }}</h6>
+        <h6> <b>Section Number:</b> {{ section.section }}</h6>
+        <h6> <b>Section Type:</b> {{ section.section_type }} </h6>
+        <h6> <b>Section Limit:</b> {{ section.limit }}</h6>
+        <h6> <b>Course Description:</b> {{ course.course_description }}</h6>
     </div>
     <br>
 
@@ -18,9 +18,9 @@
         <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
             <h3> <b>Professor Information</b></h3>
             {% for professor in professors %}
-                <h6>Professor: {{ professor.name }}</h6>
-                <h6>Email: {{ professor.user.email }}</h6>
-                <h6>Office: {{ professor.office_address }}</h6>
+                <h6><b>Professor:</b> {{ professor.name }}</h6>
+                <h6><b>Email:</b> {{ professor.user.email }}</h6>
+                <h6><b>Office:</b> {{ professor.office_address }}</h6>
             {% endfor %}
         </div>
         <br>
@@ -52,6 +52,7 @@
             </table>
         </div>
     {% else %}
+
 
 
     {% endif %}

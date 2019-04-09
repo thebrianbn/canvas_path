@@ -57,12 +57,14 @@ class Dashboard(View):
             enrolled = Enrolls.objects.filter(student=profile)
             sections = [enroll.section for enroll in enrolled]
 
-            return render(request, "dashboard.html", {"sections": sections, "is_student": is_student})
+        else:
 
+            is_student = False
+            profile = Professor.objects.get(user=request.user)
+            prof_team = ProfTeamMember.objects.get(professor=profile).team
+            sections = Section.objects.filter(prof_team=prof_team)
 
-    def post(self, request):
-
-        pass
+        return render(request, "dashboard.html", {"sections": sections, "is_student": is_student})
 
 
 class CourseDetail(View):
@@ -83,19 +85,22 @@ class CourseDetail(View):
         team_members = ProfTeamMember.objects.filter(team=prof_team)
         professors = [team_member.professor for team_member in team_members]
 
-        # get course homework info
-        homeworks = Homework.objects.filter(section=section, course=course)
         homework_grades = []
-        for homework in homeworks:
-            homework_grades.append(HomeworkGrade.objects.get(student=profile, course=course, section=section,
-                                                             homework=homework))
-
-        # get course exam info
-        exams = Exam.objects.filter(section=section, course=course)
         exam_grades = []
-        for exam in exams:
-            exam_grades.append(ExamGrade.objects.get(student=profile, course=course, section=section,
-                                                     exam=exam))
+
+        if is_student:
+
+            # get course homework info
+            homeworks = Homework.objects.filter(section=section, course=course)
+            for homework in homeworks:
+                homework_grades.append(HomeworkGrade.objects.get(student=profile, course=course, section=section,
+                                                                 homework=homework))
+
+            # get course exam info
+            exams = Exam.objects.filter(section=section, course=course)
+            for exam in exams:
+                exam_grades.append(ExamGrade.objects.get(student=profile, course=course, section=section,
+                                                         exam=exam))
 
         return render(request, "course_detail.html", {"section": section, "course": course, "professors": professors,
                                                       "exam_grades": exam_grades, "hw_grades": homework_grades,
