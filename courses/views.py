@@ -85,23 +85,32 @@ class CourseDetail(View):
         team_members = ProfTeamMember.objects.filter(team=prof_team)
         professors = [team_member.professor for team_member in team_members]
 
+        homeworks = Homework.objects.filter(section=section, course=course)
+        exams = Exam.objects.filter(section=section, course=course)
+
         homework_grades = []
         exam_grades = []
+        students = []
 
         if is_student:
 
             # get course homework info
-            homeworks = Homework.objects.filter(section=section, course=course)
             for homework in homeworks:
                 homework_grades.append(HomeworkGrade.objects.get(student=profile, course=course, section=section,
                                                                  homework=homework))
 
             # get course exam info
-            exams = Exam.objects.filter(section=section, course=course)
             for exam in exams:
                 exam_grades.append(ExamGrade.objects.get(student=profile, course=course, section=section,
                                                          exam=exam))
 
+        else:
+
+            # get enrolled students
+            enrolled = Enrolls.objects.filter(section=section, course=course)
+            students = [enroll.student for enroll in enrolled]
+
         return render(request, "course_detail.html", {"section": section, "course": course, "professors": professors,
                                                       "exam_grades": exam_grades, "hw_grades": homework_grades,
-                                                      "is_student": is_student})
+                                                      "is_student": is_student, "students": students, "hws": homeworks,
+                                                      "exams": exams})

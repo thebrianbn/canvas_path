@@ -25,6 +25,7 @@
         </div>
         <br>
         <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+            <h3> <b>Course Grades</b></h3>
             <table style="width: 100%";>
                 <tr style="background-color: #093162;">
                     <th style="color: white";>Assignment Type</th>
@@ -32,7 +33,6 @@
                     <th style="color: white";>Details</th>
                     <th style="color: white";>Grade</th>
                 </tr>
-            <h3> <b>Course Grades</b></h3>
             {% for hw_grade in hw_grades %}
                 <tr>
                     <th>Homework</th>
@@ -52,6 +52,55 @@
             </table>
         </div>
     {% else %}
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+            <h3> <b>Enrolled Students</b></h3>
+            <table style="width: 100%";>
+                <tr style="background-color: #093162;">
+                    <th style="color: white";>Name</th>
+                    <th style="color: white";>Email</th>
+                    <th style="color: white";>Phone</th>
+                    <th style="color: white";>Major</th>
+                </tr>
+                {% for student in students %}
+                    <tr>
+                        <th>{{ student.name }}</th>
+                        <th>{{ student.user.email }}</th>
+                        <th>{{ student.phone }}</th>
+                        <th>{{ student.major }}</th>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <br>
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+            <h3> <b>Assignments</b></h3>
+            <table style="width: 100%";>
+                <tr style="background-color: #093162;">
+                    <th style="color: white";>Assignment Type</th>
+                    <th style="color: white";>Number</th>
+                    <th style="color: white";>Details</th>
+                    <th style="color: white";>Action</th>
+                </tr>
+                {% for hw in hws %}
+                    <tr>
+                    <th>Homework</th>
+                    <th>{{ hw.hw_no }}</th>
+                    <th>{{ hw.hw_details }}</th>
+                    <th><button>Submit Grades</button></th>
+                    </tr>
+                {% endfor %}
+                {% for exam in exams %}
+                    <tr>
+                    <th>Exam</th>
+                    <th>{{ exam.exam_no }}</th>
+                    <th>{{ exam.exam_details }}</th>
+                    <th><button>Submit Grades</button></th>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <br>
+        <a href="#"> <button> Create Assignment</button> </a>
 
 
 
