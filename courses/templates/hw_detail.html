@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+    <h3> <b>Homework {{ homework.hw_no }} Grades</b></h3>
+    <table style="width: 100%";>
+        <tr style="background-color: #093162;">
+            <th style="color: white";>Student Email</th>
+            <th style="color: white";>Student Name</th>
+            <th style="color: white";>Grade</th>
+        </tr>
+    {% for hw_grade in hw_grades %}
+        <tr>
+            <th>{{ hw_grade.student.user.email }}</th>
+            <th>{{ hw_grade.student.name }}</th>
+            <th>{{ hw_grade.grade }}</th>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% endblock content %}

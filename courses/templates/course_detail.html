@@ -86,7 +86,7 @@
                     <th>Homework</th>
                     <th>{{ hw.hw_no }}</th>
                     <th>{{ hw.hw_details }}</th>
-                    <th><button>Submit Grades</button></th>
+                    <th><a href="{% url 'hw-detail' hw.pk %}"><button>Submit Grades</button></th>
                     </tr>
                 {% endfor %}
                 {% for exam in exams %}
@@ -94,7 +94,7 @@
                     <th>Exam</th>
                     <th>{{ exam.exam_no }}</th>
                     <th>{{ exam.exam_details }}</th>
-                    <th><button>Submit Grades</button></th>
+                        <th><a href="#"><button>Submit Grades</button></a></th>
                     </tr>
                 {% endfor %}
             </table>

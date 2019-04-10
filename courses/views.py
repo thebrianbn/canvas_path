@@ -114,3 +114,17 @@ class CourseDetail(View):
                                                       "exam_grades": exam_grades, "hw_grades": homework_grades,
                                                       "is_student": is_student, "students": students, "hws": homeworks,
                                                       "exams": exams})
+
+
+class HomeworkDetail(View):
+    """ Homework detail view to show grades for a professor's course. """
+
+    def get(self, request, pk):
+
+        homework = Homework.objects.get(id=pk)
+
+        hw_grades = HomeworkGrade.objects.filter(homework=homework)
+
+        return render(request, "hw_detail.html", {"homework": homework, "hw_grades": hw_grades})
+
+
