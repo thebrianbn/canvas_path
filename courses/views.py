@@ -6,6 +6,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from .models import Student, Professor, Zipcode, Enrolls, Section, ProfTeamMember, Homework, HomeworkGrade, Exam, \
     ExamGrade
+from .forms import HomeworkGradeFormset
 
 
 class Home(View):
@@ -122,9 +123,21 @@ class HomeworkDetail(View):
     def get(self, request, pk):
 
         homework = Homework.objects.get(id=pk)
-
         hw_grades = HomeworkGrade.objects.filter(homework=homework)
+        hw_grade_formset = HomeworkGradeFormset(queryset=hw_grades)
+        hw_grades = zip(hw_grades, hw_grade_formset)
 
-        return render(request, "hw_detail.html", {"homework": homework, "hw_grades": hw_grades})
+        return render(request, "hw_detail.html", {"homework": homework, "hw_grades": hw_grades, "hw_grade_formset":
+                                                  hw_grade_formset})
 
+    def post(self, request, pk):
 
+        homework = Homework.objects.get(id=pk)
+        hw_grades = HomeworkGrade.objects.filter(homework=homework)
+        hw_grade_formset = HomeworkGradeFormset(request.POST or None, queryset=hw_grades)
+
+        if hw_grade_formset.is_valid():
+            for form in hw_grade_formset:
+                if form.is_valid():
+                    form.save()
+                    redirect("dashboard")

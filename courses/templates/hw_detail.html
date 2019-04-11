@@ -1,21 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
-    <h3> <b>Homework {{ homework.hw_no }} Grades</b></h3>
-    <table style="width: 100%";>
-        <tr style="background-color: #093162;">
-            <th style="color: white";>Student Email</th>
-            <th style="color: white";>Student Name</th>
-            <th style="color: white";>Grade</th>
-        </tr>
-    {% for hw_grade in hw_grades %}
-        <tr>
-            <th>{{ hw_grade.student.user.email }}</th>
-            <th>{{ hw_grade.student.name }}</th>
-            <th>{{ hw_grade.grade }}</th>
-        </tr>
-    {% endfor %}
-    </table>
-    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+        <h3> <b>Homework {{ homework.hw_no }} Grades</b></h3>
+        <table style="width: 100%";>
+            <tr style="background-color: #093162;">
+                <th style="color: white";>Student Email</th>
+                <th style="color: white";>Student Name</th>
+                <th style="color: white";>Grade</th>
+            </tr>
+        {% for hw_grade in hw_grades %}
+            <tr>
+                <th>{{ hw_grade.0.student.user.email }}</th>
+                <th>{{ hw_grade.0.student.name }}</th>
+                {% for field in hw_grade.1 %}
+                    <th>{{ field }}</th>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+        </div>
+        <br>
+        <button type="submit">Save</button>
+    </form>
 {% endblock content %}
