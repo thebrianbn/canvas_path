@@ -188,6 +188,7 @@ class HomeworkDetail(View):
         # query the homework instance and get formset from POST request
         homework = Homework.objects.get(id=pk)
         hw_grade_formset = HomeworkGradeFormset(request.POST, request.FILES, instance=homework)
+        section = homework.section
 
         # if all grades were submitted, save results
         if hw_grade_formset.is_valid():
@@ -195,7 +196,7 @@ class HomeworkDetail(View):
         else:
             messages.error(request, "All grades must be submitted at once")
 
-        return redirect(homework.get_absolute_url())
+        return redirect(section.get_absolute_url())
 
 
 class ExamDetail(View):
@@ -217,6 +218,7 @@ class ExamDetail(View):
         # query the exam instance and retrieve formset from POST request
         exam = Exam.objects.get(id=pk)
         exam_grade_formset = ExamGradeFormset(request.POST, request.FILES, instance=exam)
+        section = exam.section
 
         # if all grades were submitted, save results
         if exam_grade_formset.is_valid():
@@ -224,7 +226,7 @@ class ExamDetail(View):
         else:
             messages.error(request, "All grades must be submitted at once.")
 
-        return redirect(exam.get_absolute_url())
+        return redirect(section.get_absolute_url())
 
 
 class HomeworkCreation(View):
