@@ -2,16 +2,31 @@
 
 {% block content %}
 
-    <div style="padding-right: 700px;">
+<div style="padding-right: 700px;">
     <h1> Welcome to CanvasPath</h1> <br>
-    <h5 style="color: red"> This platform is currently under development for Lion State University. Estimated completion date is
-    April 22, 2019.</h5> <br>
     <p> CanvasPath is intended to be used as a course management system for students and professors at the Lion
-    State University. Users may view their University profile information and update their password through the Profile page. All necessary
-    information to be viewed by students and professors regarding courses can be seen in the Dashboard. Students will see their enrolled
-    courses, professor contact information, and capstone team members. Professors will be able to see all courses that they are teaching,
-    and any professor teams that they are in. Professors will have three additional views for creating assignments, organizing teams, and
-    submitting scores for assignments and exams. Students will have on additional view to enroll in courses.</p>
-    </div>
+    State University. Start by clicking the Login button on the top right to log in to your Lion State University
+    account. Users may then view their University profile information and update their password through the Profile
+    page. All necessary information to be viewed by students and professors regarding courses can be seen in the
+    Dashboard.</p>
+
+    <p><b><font style="color: #093162;">Students</font></b> will see each course that they are enrolled in on their
+    Dashboard. Once they click on a course, all relevant course information will be shared, such as course details,
+    professor contact information, and grades for each homework and exam. Also included is summary statistics for each
+    assignment.</p>
+
+    <p><b><font style="color: #093162;">Professors</font></b> will see each course that they are teaching on their
+    Dashboard. Once they click on a course, course details will be shown, their course roster, and all assignments in
+    the course. They will see summary statistics for each of their assignments, and have the option to submit grades for
+    those assignments. If they choose to submit grades, they will be shown a table of each student and their grade. Each
+    grade entry must be filled out in order to save results. At the very bottom, of the course page, they have options
+    to create homework and exam assignments. If clicked on, they will be taken to the assignment creation page, where
+    they have to enter the wanted assignment number and details.</p>
+
+    <p><b><font style="color: #093162;">Administrators</font></b> may login to the system with the path "/admin/", email
+    admin@lionstate.edu, and password test12345. Once logged in, they will be able to view all database relations and
+    instances. They have the ability to create, update, or delete any instances. This allow admins to assign professors
+    to courses, students to enrollments, and so on.</p>
+</div>
 
 {% endblock content %}
