@@ -14,6 +14,7 @@ class Home(View):
     """Homepage view."""
 
     def get(self, request):
+
         return render(request, "home.html")
 
 
@@ -22,6 +23,7 @@ class Profile(View):
 
     def get(self, request):
 
+        # get user profile
         if request.user.is_student:
             profile = Student.objects.get(user=request.user)
             is_student = True
@@ -37,13 +39,14 @@ class Profile(View):
 
         form = PasswordChangeForm(request.user, request.POST)
 
+        # update password if password is valid
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, "Password changed successfully.")
-            return redirect("home")
+            return redirect("profile")
         else:
-            messages.error(request, "Please correct the error.")
+            messages.error(request, "Invalid password.")
 
 
 class Dashboard(View):
@@ -52,15 +55,13 @@ class Dashboard(View):
 
     def get(self, request):
 
+        # get user profile and course sections
         if request.user.is_student:
-
             is_student = True
             profile = Student.objects.get(user=request.user)
             enrolled = Enrolls.objects.filter(student=profile)
             sections = [enroll.section for enroll in enrolled]
-
         else:
-
             is_student = False
             profile = Professor.objects.get(user=request.user)
             prof_team = ProfTeamMember.objects.get(professor=profile).team
@@ -74,6 +75,7 @@ class CourseDetail(View):
 
     def get(self, request, pk):
 
+        # get user profile
         if request.user.is_student:
             profile = Student.objects.get(user=request.user)
             is_student = True
@@ -81,31 +83,36 @@ class CourseDetail(View):
             profile = Professor.objects.get(user=request.user)
             is_student = False
 
+        # query for all relevant instances
         section = Section.objects.get(id=pk)
         course = section.course
         prof_team = section.prof_team
         team_members = ProfTeamMember.objects.filter(team=prof_team)
         professors = [team_member.professor for team_member in team_members]
-
         homeworks = Homework.objects.filter(section=section, course=course)
         exams = Exam.objects.filter(section=section, course=course)
 
+        # keep track of a student's grades
         homework_grades = []
         exam_grades = []
         students = []
 
+        # keep track of all homework statistics
         all_hw_avgs = []
         all_hw_mins = []
         all_hw_maxs = []
 
+        # keep track of all exam statistics
         all_exam_avgs = []
         all_exam_mins = []
         all_exam_maxs = []
 
+        # for each homework, make avg, min, and max calculations
         for homework in homeworks:
             initial_grades = HomeworkGrade.objects.filter(homework=homework, course=course, section=section).values_list("grade", flat=True)
             grades_list = list(filter(None, initial_grades))
 
+            # if there are no grades, no available statistics
             if len(grades_list) == 0:
                 all_hw_avgs.append("N/A")
                 all_hw_mins.append("N/A")
@@ -115,10 +122,13 @@ class CourseDetail(View):
                 all_hw_mins.append(np.min(grades_list))
                 all_hw_maxs.append(np.max(grades_list))
 
+        # for each exam, make avg, min, and max calculations
         for exam in exams:
-            initial_grades = ExamGrade.objects.filter(exam=exam, course=course, section=section).values_list("grade", flat=True)
+            initial_grades = ExamGrade.objects.filter(exam=exam, course=course, section=section).values_list("grade",
+                                                                                                             flat=True)
             grades_list = list(filter(None, initial_grades))
 
+            # if there are no grades, no available statistics
             if len(grades_list) == 0:
                 all_exam_avgs.append("N/A")
                 all_exam_mins.append("N/A")
@@ -128,6 +138,7 @@ class CourseDetail(View):
                 all_exam_mins.append(np.min(grades_list))
                 all_exam_maxs.append(np.max(grades_list))
 
+        # if the user is a student, query for their grades, if professor, get a list of their students for the course
         if is_student:
 
             # get course homework info
@@ -146,6 +157,7 @@ class CourseDetail(View):
             enrolled = Enrolls.objects.filter(section=section, course=course)
             students = [enroll.student for enroll in enrolled]
 
+        # zip statistics with assignments
         homeworks = zip(homeworks, all_hw_avgs, all_hw_mins, all_hw_maxs)
         exams = zip(exams, all_exam_avgs, all_exam_mins, all_exam_maxs)
         homework_grades = zip(homework_grades, all_hw_avgs, all_hw_mins, all_hw_maxs)
@@ -162,6 +174,7 @@ class HomeworkDetail(View):
 
     def get(self, request, pk):
 
+        # query the homework instance and create formset
         homework = Homework.objects.get(id=pk)
         hw_grades = HomeworkGrade.objects.filter(homework=homework)
         hw_grade_formset = HomeworkGradeFormset(instance=homework)
@@ -172,13 +185,16 @@ class HomeworkDetail(View):
 
     def post(self, request, pk):
 
+        # query the homework instance and get formset from POST request
         homework = Homework.objects.get(id=pk)
         hw_grade_formset = HomeworkGradeFormset(request.POST, request.FILES, instance=homework)
 
+        # if all grades were submitted, save results
         if hw_grade_formset.is_valid():
             hw_grade_formset.save()
         else:
             messages.error(request, "All grades must be submitted at once")
+
         return redirect(homework.get_absolute_url())
 
 
@@ -187,6 +203,7 @@ class ExamDetail(View):
 
     def get(self, request, pk):
 
+        # query the exam instance and create formset
         exam = Exam.objects.get(id=pk)
         exam_grades = ExamGrade.objects.filter(exam=exam)
         exam_grade_formset = ExamGradeFormset(instance=exam)
@@ -196,9 +213,12 @@ class ExamDetail(View):
                                                     exam_grade_formset})
 
     def post(self, request, pk):
+
+        # query the exam instance and retrieve formset from POST request
         exam = Exam.objects.get(id=pk)
         exam_grade_formset = ExamGradeFormset(request.POST, request.FILES, instance=exam)
 
+        # if all grades were submitted, save results
         if exam_grade_formset.is_valid():
             exam_grade_formset.save()
         else:
@@ -212,33 +232,35 @@ class HomeworkCreation(View):
 
     def get(self, request, pk):
 
+        # query the section instance and create form
         section = Section.objects.get(id=pk)
-
         form = HomeworkCreationForm(instance=section)
 
         return render(request, "assignment_creation.html", {"form": form, "assignment_type": "Homework"})
 
     def post(self, request, pk):
 
+        # query relevant instances and get formset from POST request
         section = Section.objects.get(id=pk)
         course = section.course
         enrolled = Enrolls.objects.filter(section=section, course=course)
         students = [enroll.student for enroll in enrolled]
-
         form = HomeworkCreationForm(request.POST)
 
+        # if homework information entered correctly, save results
         if form.is_valid():
             new_instance = form.save(commit=False)
             new_instance.section = section
             new_instance.course = section.course
             new_instance.save()
 
+            # for each student in the course section, create new homework grade instances
             for student in students:
                 new_hw_grade = HomeworkGrade(section=section, course=course, student=student, homework=new_instance,
                                              grade=None)
                 new_hw_grade.save()
-            else:
-                messages.error(request, "Error in homework creation.")
+        else:
+            messages.error(request, "Error in homework creation.")
 
         return redirect(section.get_absolute_url())
 
@@ -248,27 +270,29 @@ class ExamCreation(View):
 
     def get(self, request, pk):
 
+        # query the section instance and create form
         section = Section.objects.get(id=pk)
-
         form = ExamCreationForm(instance=section)
 
         return render(request, "assignment_creation.html", {"form": form, "assignment_type": "Exam"})
 
     def post(self, request, pk):
 
+        # query relevant instances and get formset from POST request
         section = Section.objects.get(id=pk)
         course = section.course
         enrolled = Enrolls.objects.filter(section=section, course=course)
         students = [enroll.student for enroll in enrolled]
-
         form = ExamCreationForm(request.POST)
 
+        # if exam information entered correctly, save results
         if form.is_valid():
             new_instance = form.save(commit=False)
             new_instance.section = section
             new_instance.course = section.course
             new_instance.save()
 
+            # for each student in the course section, create new exam grade instances
             for student in students:
                 new_exam_grade = ExamGrade(section=section, course=course, student=student, exam=new_instance,
                                            grade=None)
