@@ -69,6 +69,7 @@ class Section(models.Model):
     def get_absolute_url(self):
         return reverse('course-detail', args=[str(self.id)])
 
+
 class Enrolls(models.Model):
     """ Course enrollment for students. """
 
