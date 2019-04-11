@@ -31,22 +31,31 @@
                     <th style="color: white";>Assignment Type</th>
                     <th style="color: white";>Number</th>
                     <th style="color: white";>Details</th>
+                    <th style="color: white";>Average</th>
+                    <th style="color: white";>Min</th>
+                    <th style="color: white";>Max</th>
                     <th style="color: white";>Grade</th>
                 </tr>
             {% for hw_grade in hw_grades %}
                 <tr>
                     <th>Homework</th>
-                    <th>{{ hw_grade.homework.hw_no }}</th>
-                    <th>{{ hw_grade.homework.hw_details }}</th>
-                    <th>{{ hw_grade.grade }}</th>
+                    <th>{{ hw_grade.0.homework.hw_no }}</th>
+                    <th>{{ hw_grade.0.homework.hw_details }}</th>
+                    <th>{{ hw_grade.1 }}</th>
+                    <th>{{ hw_grade.2 }}</th>
+                    <th>{{ hw_grade.3 }}</th>
+                    <th>{{ hw_grade.0.grade }}</th>
                 </tr>
             {% endfor %}
             {% for exam_grade in exam_grades %}
                 <tr>
                     <th>Exam</th>
-                    <th>{{ exam_grade.exam.exam_no }}</th>
-                    <th>{{ exam_grade.exam.exam_details }}</th>
-                    <th>{{ exam_grade.grade }}</th>
+                    <th>{{ exam_grade.0.exam.exam_no }}</th>
+                    <th>{{ exam_grade.0.exam.exam_details }}</th>
+                    <th>{{ exam_grade.1 }}</th>
+                    <th>{{ exam_grade.2 }}</th>
+                    <th>{{ exam_grade.3 }}</th>
+                    <th>{{ exam_grade.0.grade }}</th>
                 </tr>
             {% endfor %}
             </table>
@@ -109,7 +118,9 @@
             </table>
         </div>
         <br>
-        <a href="#"> <button> Create Assignment</button> </a>
+        <a href="{% url 'hw-creation' section.pk %}"> <button> Create Homework</button> </a>
+        <br><br>
+        <a href="{% url 'exam-creation' section.pk %}"> <button> Create Exam</button> </a>
 
 
 

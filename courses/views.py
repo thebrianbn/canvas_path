@@ -6,7 +6,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from .models import Student, Professor, Zipcode, Enrolls, Section, ProfTeamMember, Homework, HomeworkGrade, Exam, \
     ExamGrade
-from .forms import HomeworkGradeFormset, ExamGradeFormset
+from .forms import HomeworkGradeFormset, ExamGradeFormset, HomeworkCreationForm, ExamCreationForm
 import numpy as np
 
 
@@ -111,7 +111,7 @@ class CourseDetail(View):
                 all_hw_mins.append("N/A")
                 all_hw_maxs.append("N/A")
             else:
-                all_hw_avgs.append(sum(grades_list) / len(initial_grades))
+                all_hw_avgs.append("%0.2f" % (sum(grades_list) / len(grades_list)))
                 all_hw_mins.append(np.min(grades_list))
                 all_hw_maxs.append(np.max(grades_list))
 
@@ -124,7 +124,7 @@ class CourseDetail(View):
                 all_exam_mins.append("N/A")
                 all_exam_maxs.append("N/A")
             else:
-                all_exam_avgs.append(sum(grades_list) / len(initial_grades))
+                all_exam_avgs.append("%0.2f" % (sum(grades_list) / len(grades_list)))
                 all_exam_mins.append(np.min(grades_list))
                 all_exam_maxs.append(np.max(grades_list))
 
@@ -148,6 +148,8 @@ class CourseDetail(View):
 
         homeworks = zip(homeworks, all_hw_avgs, all_hw_mins, all_hw_maxs)
         exams = zip(exams, all_exam_avgs, all_exam_mins, all_exam_maxs)
+        homework_grades = zip(homework_grades, all_hw_avgs, all_hw_mins, all_hw_maxs)
+        exam_grades = zip(exam_grades, all_exam_avgs, all_exam_mins, all_exam_maxs)
 
         return render(request, "course_detail.html", {"section": section, "course": course, "professors": professors,
                                                       "exam_grades": exam_grades, "hw_grades": homework_grades,
@@ -175,6 +177,8 @@ class HomeworkDetail(View):
 
         if hw_grade_formset.is_valid():
             hw_grade_formset.save()
+        else:
+            messages.error(request, "All grades must be submitted at once")
         return redirect(homework.get_absolute_url())
 
 
@@ -197,4 +201,79 @@ class ExamDetail(View):
 
         if exam_grade_formset.is_valid():
             exam_grade_formset.save()
+        else:
+            messages.error(request, "All grades must be submitted at once.")
+
         return redirect(exam.get_absolute_url())
+
+
+class HomeworkCreation(View):
+    """ View for professors to create homeworks for a specific course section. """
+
+    def get(self, request, pk):
+
+        section = Section.objects.get(id=pk)
+
+        form = HomeworkCreationForm(instance=section)
+
+        return render(request, "assignment_creation.html", {"form": form, "assignment_type": "Homework"})
+
+    def post(self, request, pk):
+
+        section = Section.objects.get(id=pk)
+        course = section.course
+        enrolled = Enrolls.objects.filter(section=section, course=course)
+        students = [enroll.student for enroll in enrolled]
+
+        form = HomeworkCreationForm(request.POST)
+
+        if form.is_valid():
+            new_instance = form.save(commit=False)
+            new_instance.section = section
+            new_instance.course = section.course
+            new_instance.save()
+
+            for student in students:
+                new_hw_grade = HomeworkGrade(section=section, course=course, student=student, homework=new_instance,
+                                             grade=None)
+                new_hw_grade.save()
+            else:
+                messages.error(request, "Error in homework creation.")
+
+        return redirect(section.get_absolute_url())
+
+
+class ExamCreation(View):
+    """ View for professors to create homeworks for a specific course section. """
+
+    def get(self, request, pk):
+
+        section = Section.objects.get(id=pk)
+
+        form = ExamCreationForm(instance=section)
+
+        return render(request, "assignment_creation.html", {"form": form, "assignment_type": "Exam"})
+
+    def post(self, request, pk):
+
+        section = Section.objects.get(id=pk)
+        course = section.course
+        enrolled = Enrolls.objects.filter(section=section, course=course)
+        students = [enroll.student for enroll in enrolled]
+
+        form = ExamCreationForm(request.POST)
+
+        if form.is_valid():
+            new_instance = form.save(commit=False)
+            new_instance.section = section
+            new_instance.course = section.course
+            new_instance.save()
+
+            for student in students:
+                new_exam_grade = ExamGrade(section=section, course=course, student=student, exam=new_instance,
+                                           grade=None)
+                new_exam_grade.save()
+        else:
+            messages.error(request, "Error in exam creation.")
+
+        return redirect(section.get_absolute_url())

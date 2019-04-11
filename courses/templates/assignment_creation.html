@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{%  load crispy_forms_tags %}
+
+{% block content %}
+    <form method="post">
+      {% csrf_token %}
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+            <h3><b>{{ assignment_type }} Creation</b></h3>
+            <br>
+            {{ form| crispy }}
+        </div>
+        <br>
+        <button type="submit">Create Assignment</button>
+    </form>
+
+{% endblock content %}
