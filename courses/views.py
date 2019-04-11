@@ -6,7 +6,8 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from .models import Student, Professor, Zipcode, Enrolls, Section, ProfTeamMember, Homework, HomeworkGrade, Exam, \
     ExamGrade
-from .forms import HomeworkGradeFormset
+from .forms import HomeworkGradeFormset, ExamGradeFormset
+import numpy as np
 
 
 class Home(View):
@@ -93,6 +94,40 @@ class CourseDetail(View):
         exam_grades = []
         students = []
 
+        all_hw_avgs = []
+        all_hw_mins = []
+        all_hw_maxs = []
+
+        all_exam_avgs = []
+        all_exam_mins = []
+        all_exam_maxs = []
+
+        for homework in homeworks:
+            initial_grades = HomeworkGrade.objects.filter(homework=homework, course=course, section=section).values_list("grade", flat=True)
+            grades_list = list(filter(None, initial_grades))
+
+            if len(grades_list) == 0:
+                all_hw_avgs.append("N/A")
+                all_hw_mins.append("N/A")
+                all_hw_maxs.append("N/A")
+            else:
+                all_hw_avgs.append(sum(grades_list) / len(initial_grades))
+                all_hw_mins.append(np.min(grades_list))
+                all_hw_maxs.append(np.max(grades_list))
+
+        for exam in exams:
+            initial_grades = ExamGrade.objects.filter(exam=exam, course=course, section=section).values_list("grade", flat=True)
+            grades_list = list(filter(None, initial_grades))
+
+            if len(grades_list) == 0:
+                all_exam_avgs.append("N/A")
+                all_exam_mins.append("N/A")
+                all_exam_maxs.append("N/A")
+            else:
+                all_exam_avgs.append(sum(grades_list) / len(initial_grades))
+                all_exam_mins.append(np.min(grades_list))
+                all_exam_maxs.append(np.max(grades_list))
+
         if is_student:
 
             # get course homework info
@@ -111,6 +146,9 @@ class CourseDetail(View):
             enrolled = Enrolls.objects.filter(section=section, course=course)
             students = [enroll.student for enroll in enrolled]
 
+        homeworks = zip(homeworks, all_hw_avgs, all_hw_mins, all_hw_maxs)
+        exams = zip(exams, all_exam_avgs, all_exam_mins, all_exam_maxs)
+
         return render(request, "course_detail.html", {"section": section, "course": course, "professors": professors,
                                                       "exam_grades": exam_grades, "hw_grades": homework_grades,
                                                       "is_student": is_student, "students": students, "hws": homeworks,
@@ -124,7 +162,7 @@ class HomeworkDetail(View):
 
         homework = Homework.objects.get(id=pk)
         hw_grades = HomeworkGrade.objects.filter(homework=homework)
-        hw_grade_formset = HomeworkGradeFormset(queryset=hw_grades)
+        hw_grade_formset = HomeworkGradeFormset(instance=homework)
         hw_grades = zip(hw_grades, hw_grade_formset)
 
         return render(request, "hw_detail.html", {"homework": homework, "hw_grades": hw_grades, "hw_grade_formset":
@@ -133,11 +171,30 @@ class HomeworkDetail(View):
     def post(self, request, pk):
 
         homework = Homework.objects.get(id=pk)
-        hw_grades = HomeworkGrade.objects.filter(homework=homework)
-        hw_grade_formset = HomeworkGradeFormset(request.POST or None, queryset=hw_grades)
+        hw_grade_formset = HomeworkGradeFormset(request.POST, request.FILES, instance=homework)
 
         if hw_grade_formset.is_valid():
-            for form in hw_grade_formset:
-                if form.is_valid():
-                    form.save()
-                    redirect("dashboard")
+            hw_grade_formset.save()
+        return redirect(homework.get_absolute_url())
+
+
+class ExamDetail(View):
+    """ Exam detail view to show grades for a professor's course. """
+
+    def get(self, request, pk):
+
+        exam = Exam.objects.get(id=pk)
+        exam_grades = ExamGrade.objects.filter(exam=exam)
+        exam_grade_formset = ExamGradeFormset(instance=exam)
+        exam_grades = zip(exam_grades, exam_grade_formset)
+
+        return render(request, "exam_detail.html", {"exam": exam, "exam_grades": exam_grades, "exam_grade_formset":
+                                                    exam_grade_formset})
+
+    def post(self, request, pk):
+        exam = Exam.objects.get(id=pk)
+        exam_grade_formset = ExamGradeFormset(request.POST, request.FILES, instance=exam)
+
+        if exam_grade_formset.is_valid():
+            exam_grade_formset.save()
+        return redirect(exam.get_absolute_url())

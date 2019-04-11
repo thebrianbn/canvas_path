@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 User.add_to_class("is_student", models.BooleanField(default=False))
 
@@ -104,6 +105,9 @@ class Homework(models.Model):
     class Meta:
         unique_together = (("course", "section", "hw_no"),)
 
+    def get_absolute_url(self):
+        return reverse('hw-detail', args=[str(self.id)])
+
 
 class HomeworkGrade(models.Model):
     """ Finalized grades for student homework assignments. """
@@ -112,7 +116,7 @@ class HomeworkGrade(models.Model):
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
     section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
     homework = models.ForeignKey("courses.Homework", on_delete=models.CASCADE)
-    grade = models.CharField(max_length=1)
+    grade = models.FloatField(null=True)
 
     class Meta:
         unique_together = (("student", "course", "section", "homework"),)
@@ -129,6 +133,9 @@ class Exam(models.Model):
     class Meta:
         unique_together = (("course", "section", "exam_no"),)
 
+    def get_absolute_url(self):
+        return reverse('exam-detail', args=[str(self.id)])
+
 
 class ExamGrade(models.Model):
     """ Finalized grades for student exams. """
@@ -137,7 +144,7 @@ class ExamGrade(models.Model):
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE)
     section = models.ForeignKey("courses.Section", on_delete=models.CASCADE)
     exam = models.ForeignKey("courses.Exam", on_delete=models.CASCADE)
-    grade = models.CharField(max_length=1)
+    grade = models.FloatField(null=True)
 
     class Meta:
         unique_together = (("student", "course", "section", "exam"),)

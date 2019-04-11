@@ -3,6 +3,7 @@
 {% block content %}
     <form method="post">
         {% csrf_token %}
+    {{ hw_grade_formset.management_form }}
         <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
         <h3> <b>Homework {{ homework.hw_no }} Grades</b></h3>
         <table style="width: 100%";>
@@ -15,9 +16,7 @@
             <tr>
                 <th>{{ hw_grade.0.student.user.email }}</th>
                 <th>{{ hw_grade.0.student.name }}</th>
-                {% for field in hw_grade.1 %}
-                    <th>{{ field }}</th>
-                {% endfor %}
+                <th>{{ hw_grade.1.as_p }}</th>
             </tr>
         {% endfor %}
         </table>

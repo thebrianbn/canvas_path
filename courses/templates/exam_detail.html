@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+    {{ exam_grade_formset.management_form }}
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+        <h3> <b>Exam {{ exam.exam_no }} Grades</b></h3>
+        <table style="width: 100%";>
+            <tr style="background-color: #093162;">
+                <th style="color: white";>Student Email</th>
+                <th style="color: white";>Student Name</th>
+                <th style="color: white";>Grade</th>
+            </tr>
+        {% for exam_grade in exam_grades %}
+            <tr>
+                <th>{{ exam_grade.0.student.user.email }}</th>
+                <th>{{ exam_grade.0.student.name }}</th>
+                <th>{{ exam_grade.1.as_p }}</th>
+            </tr>
+        {% endfor %}
+        </table>
+        </div>
+        <br>
+        <button type="submit">Save</button>
+    </form>
+{% endblock content %}

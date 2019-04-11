@@ -1,6 +1,6 @@
 from django import forms
-from .models import HomeworkGrade, ExamGrade
-from django.forms.models import modelformset_factory
+from .models import Homework, Exam, HomeworkGrade, ExamGrade
+from django.forms.models import inlineformset_factory
 
 """
 class HomeworkGradesForm(forms.ModelForm):
@@ -17,5 +17,5 @@ class ExamGradesForm(forms.ModelForm):
         fields = ("grade",)
 """
 
-HomeworkGradeFormset = modelformset_factory(HomeworkGrade, fields=("grade",))
-ExamGradeFormset = modelformset_factory(ExamGrade, fields=("grade",))
+HomeworkGradeFormset = inlineformset_factory(Homework, HomeworkGrade, fields=("grade",), can_delete=False)
+ExamGradeFormset = inlineformset_factory(Exam, ExamGrade, fields=("grade",), can_delete=False)
