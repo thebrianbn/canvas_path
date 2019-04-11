@@ -27,3 +27,8 @@ password: test12345
 ```
 python manage.py runserver
 ```
+
+### Visit website (url in web browser)
+```
+localhost:8000
+```
