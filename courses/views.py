@@ -107,6 +107,11 @@ class CourseDetail(View):
         all_exam_mins = []
         all_exam_maxs = []
 
+        # keep track of final grade for students
+        assignment_total = 0
+        assignment_counter = 0
+        final_grade = {}
+
         # for each homework, make avg, min, and max calculations
         for homework in homeworks:
             initial_grades = HomeworkGrade.objects.filter(homework=homework, course=course, section=section).values_list("grade", flat=True)
@@ -143,13 +148,44 @@ class CourseDetail(View):
 
             # get course homework info
             for homework in homeworks:
-                homework_grades.append(HomeworkGrade.objects.get(student=profile, course=course, section=section,
-                                                                 homework=homework))
+                temp_grade = HomeworkGrade.objects.get(student=profile, course=course, section=section,
+                                                       homework=homework)
+                homework_grades.append(temp_grade)
+
+                # update final grade
+                if temp_grade.grade is not None:
+                    assignment_total += temp_grade.grade
+                    assignment_counter += 1
 
             # get course exam info
             for exam in exams:
-                exam_grades.append(ExamGrade.objects.get(student=profile, course=course, section=section,
-                                                         exam=exam))
+                temp_grade = ExamGrade.objects.get(student=profile, course=course, section=section,
+                                                   exam=exam)
+                exam_grades.append(temp_grade)
+
+                # update final grade
+                if temp_grade.grade is not None:
+                    assignment_total += temp_grade.grade
+                    assignment_counter += 1
+
+            # if there is at least one assignment graded, assign a final grade
+            if assignment_counter >= 1:
+                # calculate final grade
+                final_grade["number"] = assignment_total / assignment_counter
+
+                if final_grade["number"] >= 90:
+                    final_grade["letter"] = "A"
+                elif final_grade["number"] >= 80:
+                    final_grade["letter"] = "B"
+                elif final_grade["number"] >= 70:
+                    final_grade["letter"] = "C"
+                elif final_grade["number"] >= 60:
+                    final_grade["letter"] = "D"
+                else:
+                    final_grade["letter"] = "F"
+            else:
+                final_grade["number"] = "N/A"
+                final_grade["letter"] = "N/A"
 
         else:
 
@@ -166,7 +202,7 @@ class CourseDetail(View):
         return render(request, "course_detail.html", {"section": section, "course": course, "professors": professors,
                                                       "exam_grades": exam_grades, "hw_grades": homework_grades,
                                                       "is_student": is_student, "students": students, "hws": homeworks,
-                                                      "exams": exams})
+                                                      "exams": exams, "final_grade": final_grade})
 
 
 class HomeworkDetail(View):

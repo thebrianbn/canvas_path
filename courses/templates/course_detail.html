@@ -60,6 +60,12 @@
             {% endfor %}
             </table>
         </div>
+        <br>
+        <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
+            <h3> <b>Semester Final Grade</b> </h3>
+            <h6> <b>Final Numeric Grade:</b> {{ final_grade.number }}</h6>
+            <h6> <b>Final Letter Grade:</b> {{ final_grade.letter }}</h6>
+        </div>
     {% else %}
         <div style="border-style: solid; padding-left: 15px; padding-top: 5px;">
             <h3> <b>Enrolled Students</b></h3>
